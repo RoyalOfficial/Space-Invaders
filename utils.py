@@ -32,13 +32,14 @@ def load_checkpoint(agent, path="checkpoint.pth", device=Config.device):
         agent.model.load_state_dict(checkpoint["model_state_dict"])
         agent.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         agent.epsilon = checkpoint["epsilon"]
-        print(f"Loaded checkpoint from episode {checkpoint['episode']}")
-        return checkpoint["episode"]
+        
     
         if "memory_buffer" in checkpoint:
             agent.memory.buffer.clear()
             agent.memory.buffer.extend(checkpoint["memory_buffer"])
             print(f"Loaded replay memory with {len(agent.memory.buffer)} samples")
+        print(f"Loaded checkpoint from episode {checkpoint['episode']}")
+        return checkpoint["episode"]
     
     else:
         print("No checkpoint found, starting fresh.")
