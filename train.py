@@ -40,8 +40,14 @@ def train_loop(agent, config, env):
             if current_lives < previous_lives:
                 shaped_reward -= 1.0
             else:
-                shaped_reward += 0.01 # small reward for living
+                shaped_reward += 0.005 # small reward for living
             previous_lives = current_lives
+            
+            # Slight encouragement for moving 
+            if action in [2,3,4,5]:
+                shaped_reward += 0.01 # moved
+            else:
+                shaped_reward -= 0.002 # NOOP/fired without moving
             
             # Store transition in replay memory 
             agent.memory.push(stacked_state, action, shaped_reward, stacked_next_state, done)

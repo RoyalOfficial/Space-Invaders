@@ -18,7 +18,7 @@ class Config:
     memory_size = 100000
     epsilon_start = 1.0
     epsilon_min = 0.1
-    epsilon_decay = 1e-5
+    epsilon_decay = 1e-6
     target_update = 1000
     num_episodes = 10000
     

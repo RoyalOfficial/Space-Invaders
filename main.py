@@ -8,7 +8,7 @@ import gymnasium as gym
 import ale_py
 
 if __name__ == "__main__":
-    Train = True
+    Train = False # True = resume training, False = eval mode
     if Train:
         config = Config()
         
