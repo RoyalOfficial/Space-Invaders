@@ -1,3 +1,7 @@
+"""
+Contains the train loop and evalution loop.
+Author: Pietro Paniccia
+"""
 import torch
 from collections import deque 
 import numpy as np
@@ -6,12 +10,18 @@ import cv2
 from utils import save_checkpoint, load_checkpoint
 
 def preprocess_frame(frame):
+    """
+    Takes a frame and converts it to grayscale for simplified training
+    """
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
     resized = cv2.resize(gray, (84,84), interpolation=cv2.INTER_AREA)
     normalized = resized.astype(np.float32) / 255.0
     return np.expand_dims(normalized, axis=0)
 
 def train_loop(agent, config, env):
+    """
+    Training loop that takes in the agent, config, and env 
+    """
     start_episode = load_checkpoint(agent, device=config.device)
     
     for episode in range(start_episode, config.num_episodes):
@@ -70,6 +80,10 @@ def train_loop(agent, config, env):
     env.close()
     
 def eval_loop(agent, env, device, frame_stack_size=4, sleep=0.02):
+    """
+    Evalution loop for a trained model. 
+    Removes the randomness to test if the model has learned the game well.
+    """
     frame_stack = deque(maxlen=frame_stack_size)
     obs, info = env.reset()
     done = False

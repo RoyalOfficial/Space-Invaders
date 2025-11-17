@@ -1,9 +1,17 @@
+"""
+Contains code for the agent and contains learning algorithm. 
+Also contains the way the action chooses an action.
+Author: Pietro Paniccia
+"""
 import random
 import torch
 import numpy as np
 
 class Agent:
     def __init__(self, model, memory, config):
+        """
+        Initializes the agent with given model, memory, and config
+        """
         self.model = model
         self.memory = memory 
         self.config = config
@@ -12,6 +20,9 @@ class Agent:
         self.criterion = torch.nn.MSELoss()
     
     def act(self, state):
+        """
+        Either picks move based on the state or a random move based on current epsilon
+        """
         if random.random() < self.epsilon:
             return random.randint(0, self.config.num_actions - 1)
         with torch.no_grad():
@@ -19,6 +30,9 @@ class Agent:
             return torch.argmax(q_vals).item()
     
     def learn(self):
+        """
+        Contains the learning algorithm for the agent
+        """
         # Only learn if enough samples
         if len(self.memory) < self.config.batch_size:
             return

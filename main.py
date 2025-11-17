@@ -1,3 +1,8 @@
+"""
+Main python file that is responsible for running the training for Space Invaders.
+Current implementation uses a deep q learning network and isn't very good at the game.
+Author: Pietro Paniccia
+"""
 from config import Config
 from model import DQN
 from memory import ReplayMemory
@@ -10,9 +15,9 @@ import ale_py
 if __name__ == "__main__":
     Train = False # True = resume training, False = eval mode
     if Train:
-        config = Config()
+        config = Config() # Creates a config that holds all the hyper parameters
         
-        gym.register_envs(ale_py)
+        gym.register_envs(ale_py) # Makes the arcade learning environment games work
         env = gym.make(config.env_name,  render_mode=config.render_mode, frameskip=config.frameskip)
         config.num_actions = env.action_space.n
         config.obs_shape = env.observation_space.shape

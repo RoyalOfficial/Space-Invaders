@@ -1,3 +1,8 @@
+"""
+Contains utility functions. 
+Currently contains a seed setter, save checkpoint, and load checkpoint.
+Author: Pietro Paniccia
+"""
 import torch 
 import random 
 import numpy as np 
@@ -13,6 +18,10 @@ def set_seed(seed=42):
         torch.cuda.manual_seed_all(seed)
         
 def save_checkpoint(agent, episode, path="checkpoint.pth", include_memory=False):
+    """
+    Saves a checkpoint file called checkpoint.pth and current episode to resume training from.
+    Optionally includes the replay memory as it takes a lot of storage and time to save.
+    """
     checkpoint = {
         "model_state_dict": agent.model.state_dict(),
         "optimizer_state_dict": agent.optimizer.state_dict(),
@@ -31,6 +40,10 @@ def save_checkpoint(agent, episode, path="checkpoint.pth", include_memory=False)
         print(f"Saved Replay memory separately -> {mem_path}")
     
 def load_checkpoint(agent, path="checkpoint.pth", device=Config.device):
+    """
+    Loads a checkpoint from checkpoint.pth if exists. 
+    Takes in an agent as input.
+    """
     if os.path.exists(path):
         checkpoint = torch.load(path, map_location=device)
         agent.model.load_state_dict(checkpoint["model_state_dict"])

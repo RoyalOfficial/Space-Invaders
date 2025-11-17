@@ -1,3 +1,8 @@
+"""
+Contains class for the replay memory. 
+Saves the previous state, action, reward, next_state, and done.
+Author: Pietro Paniccia
+"""
 from collections import deque
 import random 
 
@@ -10,6 +15,7 @@ class ReplayMemory:
         
     def sample(self, batch_size):
         batch = random.sample(self.buffer, batch_size)
+        # Saves as zip file to reduce storage usage
         states, actions, rewards, next_states, dones = zip(*batch)
         
         return states, actions, rewards, next_states, dones 
