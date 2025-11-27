@@ -6,6 +6,7 @@ Author: Pietro Paniccia
 import random
 import torch
 import numpy as np
+import copy
 
 class Agent:
     def __init__(self, model, memory, config):
@@ -18,6 +19,8 @@ class Agent:
         self.epsilon = config.epsilon_start
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr = config.learning_rate)
         self.criterion = torch.nn.MSELoss()
+        self.target_model = copy.deepcopy(model)
+        self.learn_step = 0
     
     def act(self, state):
         """
@@ -51,9 +54,13 @@ class Agent:
         
         # Compute max Q(s', a') for next states
         with torch.no_grad():
-            max_next_q_vals = self.model(next_states).max(1, keepdim=True)[0]
+            max_next_q_vals = self.target_model(next_states).max(1, keepdim=True)[0]
             target_q_vals = rewards + self.config.gamma * max_next_q_vals * (1 - dones)
             
+        # Update target network 
+        self.learn_step += 1
+        if self.learn_step % self.config.target_update == 0:
+            self.target_model.load_state_dict(self.model.state_dict())
         # Compute loss
         loss = self.criterion(q_vals, target_q_vals)
         
@@ -63,4 +70,5 @@ class Agent:
         self.optimizer.step()
         
         # Decay epsilon
-        self.epsilon = max(self.config.epsilon_min, self.epsilon * 0.99995)
+        eps_decay = max(self.config.epsilon_min, self.epsilon *0.99995)
+        self.epsilon = max(self.config.epsilon_min, self.epsilon - eps_decay)

@@ -48,22 +48,33 @@ def train_loop(agent, config, env):
             # Punish dying 
             current_lives = info.get("ale.lives", previous_lives) # Defaults previous if not present
             if current_lives < previous_lives:
-                shaped_reward -= 1.0
+                shaped_reward -= 5.0
             else:
-                shaped_reward += 0.005 # small reward for living
+                shaped_reward += 0.2 # small reward for living
             previous_lives = current_lives
             
             # Slight encouragement for moving 
             if action in [2,3,4,5]:
-                shaped_reward += 0.01 # moved
-            else:
-                shaped_reward -= 0.002 # NOOP/fired without moving
+                shaped_reward += 0.1 # moved
+            
+            # Encourage firing
+            if action in [1]:
+                shaped_reward += 0.2
+            
+            # Encourage fire move
+            if action in [4,5]:
+                shaped_reward += 0.25
+            
+            # Clip 
+            shaped_reward = np.clip(shaped_reward, -10.0, 10.0)
             
             # Store transition in replay memory 
             agent.memory.push(stacked_state, action, shaped_reward, stacked_next_state, done)
             
             # Learn from replay buffer
-            agent.learn()
+            if len(agent.memory) > 50000:
+                agent.learn()
+            
             
             # Prepare next iteration
             stacked_state = stacked_next_state
@@ -73,8 +84,9 @@ def train_loop(agent, config, env):
         
         with open("exampleout.txt", "a") as f:
             f.write(f"Episode {episode+1}/{config.num_episodes} - Total Reward: {total_reward:.2f}\n")
-       
-        if (episode + 1) % 50 == 0:
+
+        # Save every 500 episodes include_memory decides if replay memory included
+        if (episode + 1) % 500 == 0:
             save_checkpoint(agent, episode + 1, include_memory=True)
             
     env.close()

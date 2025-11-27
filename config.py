@@ -21,6 +21,7 @@ class Config:
     epsilon_decay = 1e-6 # Amount of decay for linear epsilon decay
     target_update = 1000
     num_episodes = 10000
+    epsilon_decay_steps = 250000
     
     # Uses cuda if available and if not cpu
     device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
