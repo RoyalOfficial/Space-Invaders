@@ -70,5 +70,4 @@ class Agent:
         self.optimizer.step()
         
         # Decay epsilon
-        eps_decay = max(self.config.epsilon_min, self.epsilon *0.99995)
-        self.epsilon = max(self.config.epsilon_min, self.epsilon - eps_decay)
+        self.epsilon = max(self.config.epsilon_min, self.epsilon * 0.99995)
