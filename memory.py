@@ -37,7 +37,7 @@ class ReplayMemory:
             self.next_states[batch],
             self.rewards[batch],
             self.next_states[batch],
-            self.done[batch]
+            self.dones[batch]
         )
     
     def __len__(self):
