@@ -13,7 +13,7 @@ import gymnasium as gym
 import ale_py
 
 if __name__ == "__main__":
-    Train = False # True = resume training, False = eval mode
+    Train = True # True = resume training, False = eval mode
     if Train:
         config = Config() # Creates a config that holds all the hyper parameters
         
