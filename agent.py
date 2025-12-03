@@ -31,7 +31,15 @@ class Agent:
         with torch.no_grad():
             q_vals = self.model(state)
             return torch.argmax(q_vals).item()
-    
+        
+    def update_epsilon(self):
+        # Decay epsilon - expoenational decays too fast
+        # self.epsilon = max(self.config.epsilon_min, self.epsilon * 0.99995)
+        
+        # Linear decay epsilon
+        decay_rate = (self.config.epsilon_start - self.config.epsilon_mid) / self.config.epsilon_decay_steps
+        self.epsilon = max(self.config.epsilon_min, self.epsilon - decay_rate)
+        
     def learn(self):
         """
         Contains the learning algorithm for the agent
@@ -69,5 +77,3 @@ class Agent:
         loss.backward()
         self.optimizer.step()
         
-        # Decay epsilon
-        self.epsilon = max(self.config.epsilon_min, self.epsilon * 0.99995)

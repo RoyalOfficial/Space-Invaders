@@ -45,29 +45,17 @@ def train_loop(agent, config, env):
             stacked_next_state = np.concatenate(frame_stack, axis=0)
             shaped_reward = reward
             
-            did_hit = (action in [1,4,5]) and (reward != 0)
-            
             # Punish dying 
             current_lives = info.get("ale.lives", previous_lives) # Defaults previous if not present
             if current_lives < previous_lives:
-                shaped_reward -= 0.1
+                shaped_reward -= 0.5
             else:
-                shaped_reward += 0.001 # small reward for living
+                shaped_reward += 0.0001 # small reward for living
             previous_lives = current_lives
             
             # Slight encouragement for moving 
             if action in [2,3]:
-                shaped_reward += 0.0005 # moved
-            
-            # Encourage firing
-            if action in [1,4,5]:
-                shaped_reward += 0.005
-            
-            # Reward hitting aliens
-            if did_hit:
-                shaped_reward += 0.003
-            # Clip 
-            shaped_reward = np.clip(shaped_reward, -10.0, 10.0)
+                shaped_reward += 0.001 # moved
             
             # Store transition in replay memory 
             agent.memory.push(stacked_state, action, shaped_reward, stacked_next_state, done)
@@ -76,6 +64,8 @@ def train_loop(agent, config, env):
             if len(agent.memory) > 50000:
                 agent.learn()
             
+            # Decay epsilon once per step
+            agent.update_epsilon()
             
             # Prepare next iteration
             stacked_state = stacked_next_state
