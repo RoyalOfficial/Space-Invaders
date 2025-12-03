@@ -37,7 +37,7 @@ class Agent:
         # self.epsilon = max(self.config.epsilon_min, self.epsilon * 0.99995)
         
         # Linear decay epsilon
-        decay_rate = (self.config.epsilon_start - self.config.epsilon_mid) / self.config.epsilon_decay_steps
+        decay_rate = (self.config.epsilon_start - self.config.epsilon_min) / self.config.epsilon_decay_steps
         self.epsilon = max(self.config.epsilon_min, self.epsilon - decay_rate)
         
     def learn(self):
