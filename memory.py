@@ -34,7 +34,7 @@ class ReplayMemory:
         
         return (
             self.states[batch],
-            self.next_states[batch],
+            self.actions[batch],
             self.rewards[batch],
             self.next_states[batch],
             self.dones[batch]

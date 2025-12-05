@@ -29,15 +29,22 @@ def save_checkpoint(agent, episode, path="checkpoint.pth", include_memory=False)
         "episode": episode
     }
     
-    torch.save(checkpoint, path)
-    print(f"Saved checkpoint at episode {episode} -> {path}")
-    
-    # Include replay memory buffer
     if include_memory:
-        mem_path = path.replace(".pth","_memory.pkl.gz")
-        with gzip.open(mem_path, "wb") as f:
-            pickle.dump(list(agent.memory.buffer)[-10000:], f, protocol=pickle.HIGHEST_PROTOCOL)
-        print(f"Saved Replay memory separately -> {mem_path}")
+        mem = agent.memory
+        max_mem = min(mem.mem_cntr, mem.capacity)
+        last_n = 10000
+        start = max(0,max_mem - last_n)
+        checkpoint["memory"] = {
+            "states": mem.states[start:max_mem],
+            "actions": mem.actions[start:max_mem],
+            "rewards": mem.rewards[start:max_mem],
+            "next_states": mem.next_states[start:max_mem],
+            "dones": mem.dones[start:max_mem],
+        }
+    
+    torch.save(checkpoint, path)
+    
+    print(f"Checkpoint saved at episode {episode} -> {path}")
     
 def load_checkpoint(agent, path="checkpoint.pth", device=Config.device):
     """
@@ -45,22 +52,26 @@ def load_checkpoint(agent, path="checkpoint.pth", device=Config.device):
     Takes in an agent as input.
     """
     if os.path.exists(path):
-        checkpoint = torch.load(path, map_location=device)
+        checkpoint = torch.load(path, map_location=device, weights_only=False)
+        
         agent.model.load_state_dict(checkpoint["model_state_dict"])
         agent.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
         agent.epsilon = checkpoint["epsilon"]
         
-
-        mem_path = path.replace(".pth","_memory.pkl.gz")
-        if os.path.exists(mem_path):
-            try: 
-                with gzip.open(mem_path, "rb") as f:
-                    memory_data = pickle.load(f)
-                agent.memory.buffer.clear()
-                agent.memory.buffer.extend(memory_data)
-                print(f"Loaded replay memory ({len(memory_data)} samples from {mem_path})")
-            except Exception as e:
-                print(f"Could not load replay memory ({e}), continuing without it")
+                 
+        if "memory" in checkpoint:
+            memory_data = checkpoint["memory"]
+            mem = agent.memory 
+            data_len = len(memory_data["states"])
+            mem.states[:data_len] = memory_data["states"]
+            mem.actions[:data_len] = memory_data["actions"]
+            mem.rewards[:data_len] = memory_data["rewards"]
+            mem.next_states[:data_len] = memory_data["next_states"]
+            mem.dones[:data_len] = memory_data["dones"]
+            mem.mem_cntr = data_len
+            print(f"Loaded replay memory ({data_len} samples)")
+        
+        print(f"Checkpoint loaded for episode {checkpoint['episode']}")       
         return checkpoint["episode"]
     
     else:

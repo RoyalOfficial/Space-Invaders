@@ -35,7 +35,7 @@ if __name__ == "__main__":
         config.num_actions = env.action_space.n
         config.obs_shape = env.observation_space.shape
         
-        memory = ReplayMemory(config.memory_size)
+        memory = ReplayMemory(config.memory_size, config.state_shape)
         model = DQN(config).to(config.device)
         agent = Agent(model, memory, config)
         
